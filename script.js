@@ -90,3 +90,6 @@ function updateUI() {
     document.getElementById("losses").innerText = losses;
     document.getElementById("winRate").innerText = winRate.toFixed(1) + "%";
 }
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+}
