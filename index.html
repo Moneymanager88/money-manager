@@ -1,231 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra Pro Money Manager</title>
+    <title>Trading Money Management</title>
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            padding: 20px;
+        }
 
-<style>
-body{
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#0f0f0f,#1f1f1f);
-    color:white;
-}
+        .panel {
+            background: #1c1c1c;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
 
-.app{
-    max-width:430px;
-    margin:auto;
-    padding:20px;
-}
+        input, select, button {
+            padding: 5px;
+            margin: 5px;
+        }
 
-.header{
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-    margin-bottom:20px;
-}
+        .green { color: lime; }
+        .red { color: red; }
 
-.card{
-    backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.05);
-    border-radius:20px;
-    padding:15px;
-    margin-bottom:15px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn{
-    from{opacity:0; transform:translateY(10px);}
-    to{opacity:1; transform:translateY(0);}
-}
-
-input{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#2a2a2a;
-    color:white;
-    margin-bottom:10px;
-}
-
-.stat{
-    display:flex;
-    justify-content:space-between;
-    margin:5px 0;
-}
-
-.big{
-    font-size:20px;
-    font-weight:bold;
-}
-
-button{
-    width:48%;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    font-weight:bold;
-    transition:0.2s;
-}
-
-button:active{
-    transform:scale(0.95);
-}
-
-.win{background:#00c853;}
-.loss{background:#d50000;}
-.sessionBtn{
-    width:100%;
-    background:#2962ff;
-    margin-top:15px;
-}
-
-.green{color:#00e676;}
-.red{color:#ff5252;}
-.yellow{color:#ffd600;}
-
-.table{
-    max-height:200px;
-    overflow-y:auto;
-    font-size:12px;
-}
-
-.row{
-    display:flex;
-    justify-content:space-between;
-    padding:6px;
-    border-bottom:1px solid rgba(255,255,255,0.05);
-}
-
-.winRow{color:#00e676;}
-.lossRow{color:#ff5252;}
-</style>
+        button {
+            cursor: pointer;
+        }
+    </style>
 </head>
-
 <body>
-<div class="app">
 
-<div class="header">ULTRA PRO MANAGER</div>
+<h2>Trading Money Manager</h2>
 
-<div class="card">
-<input type="number" id="baseAmount" value="1" placeholder="Base Amount">
-<input type="number" id="payout" value="90" placeholder="Payout %">
-<input type="number" id="target" value="1" placeholder="Target Profit">
+<div class="panel">
+    Initial Capital: <input type="number" id="capital" value="20"><br>
+    Base Amount: <input type="number" id="baseAmount" value="1"><br>
+    Payout %: <input type="number" id="payout" value="90"><br>
+    Target Profit: <input type="number" id="target" value="1"><br>
 </div>
 
-<div class="card">
-<div class="stat big">
-<span>Next Amount</span>
-<span id="currentAmount" class="yellow">1.00</span>
+<div class="panel">
+    Current Amount: <span id="currentAmount">1</span><br>
+    Total Trades: <span id="totalTrades">0</span><br>
+    Wins: <span id="wins">0</span><br>
+    Losses: <span id="losses">0</span><br>
+    Profit: <span id="profit">0</span><br>
 </div>
 
-<div class="stat"><span>Profit</span><span id="profit">0</span></div>
-<div class="stat"><span>Trades</span><span id="totalTrades">0</span></div>
-<div class="stat"><span>Win Rate</span><span id="winRate">0%</span></div>
-</div>
-
-<div class="card">
-<button class="win" onclick="winTrade()">WIN</button>
-<button class="loss" onclick="loseTrade()">LOSS</button>
-<button class="sessionBtn" onclick="newSession()">NEW SESSION</button>
-</div>
-
-<div class="card">
-<div style="font-weight:bold;margin-bottom:8px;">Trade Journal</div>
-<div class="table" id="tradeTable"></div>
-</div>
-
+<div class="panel">
+    <button onclick="winTrade()">WIN</button>
+    <button onclick="loseTrade()">LOSS</button>
+    <button onclick="newSession()">NEW SESSION</button>
 </div>
 
 <script>
-let totalTrades=0;
-let wins=0;
-let losses=0;
-let profit=0;
-let currentAmount=1;
-let trades=JSON.parse(localStorage.getItem("trades"))||[];
 
-function saveTrades(){
-    localStorage.setItem("trades",JSON.stringify(trades));
+let totalTrades = 0;
+let wins = 0;
+let losses = 0;
+let profit = 0;
+let currentAmount = 1;
+
+function updateDisplay() {
+    document.getElementById("currentAmount").innerText = currentAmount.toFixed(2);
+    document.getElementById("totalTrades").innerText = totalTrades;
+    document.getElementById("wins").innerText = wins;
+    document.getElementById("losses").innerText = losses;
+    document.getElementById("profit").innerText = profit.toFixed(2);
 }
 
-function renderTrades(){
-    const table=document.getElementById("tradeTable");
-    table.innerHTML="";
-    trades.slice().reverse().forEach(t=>{
-        const row=document.createElement("div");
-        row.className="row "+(t.result==="WIN"?"winRow":"lossRow");
-        row.innerHTML=`<span>#${t.id}</span>
-                       <span>${t.result}</span>
-                       <span>${t.amount.toFixed(2)}</span>
-                       <span>${t.profit.toFixed(2)}</span>`;
-        table.appendChild(row);
-    });
-}
+function winTrade() {
+    let payout = document.getElementById("payout").value / 100;
 
-function updateDisplay(){
-    document.getElementById("currentAmount").innerText=currentAmount.toFixed(2);
-    document.getElementById("profit").innerText=profit.toFixed(2);
-    document.getElementById("totalTrades").innerText=totalTrades;
-    let rate=totalTrades>0?((wins/totalTrades)*100).toFixed(1):0;
-    document.getElementById("winRate").innerText=rate+"%";
-}
+    totalTrades++;
+    wins++;
 
-function winTrade(){
-    let payout=document.getElementById("payout").value/100;
-    totalTrades++; wins++;
-    let gain=currentAmount*payout;
-    profit+=gain;
+    profit += currentAmount * payout;
 
-    trades.push({
-        id:totalTrades,
-        result:"WIN",
-        amount:currentAmount,
-        profit:gain
-    });
+    currentAmount = parseFloat(document.getElementById("baseAmount").value);
 
-    currentAmount=parseFloat(document.getElementById("baseAmount").value);
-    saveTrades();
-    renderTrades();
     updateDisplay();
 }
 
-function loseTrade(){
-    let payout=document.getElementById("payout").value/100;
-    let target=parseFloat(document.getElementById("target").value);
+function loseTrade() {
+    let payout = document.getElementById("payout").value / 100;
+    let target = parseFloat(document.getElementById("target").value);
 
-    totalTrades++; losses++;
-    profit-=currentAmount;
+    totalTrades++;
+    losses++;
 
-    trades.push({
-        id:totalTrades,
-        result:"LOSS",
-        amount:currentAmount,
-        profit:-currentAmount
-    });
+    profit -= currentAmount;
 
-    currentAmount=(currentAmount+target)/payout;
-    saveTrades();
-    renderTrades();
+    currentAmount = (currentAmount + target) / payout;
+
     updateDisplay();
 }
 
-function newSession(){
-    totalTrades=0;
-    wins=0;
-    losses=0;
-    profit=0;
-    currentAmount=parseFloat(document.getElementById("baseAmount").value);
-    trades=[];
-    saveTrades();
-    renderTrades();
+function newSession() {
+    totalTrades = 0;
+    wins = 0;
+    losses = 0;
+    profit = 0;
+    currentAmount = parseFloat(document.getElementById("baseAmount").value);
+
     updateDisplay();
 }
 
-renderTrades();
 updateDisplay();
+
 </script>
 
 </body>
