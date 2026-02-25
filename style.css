@@ -1,58 +1,79 @@
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f0f0f, #1a1a2e);
+    background: #0c0c0c;
+    font-family: Arial, sans-serif;
     color: white;
 }
 
-.dashboard {
-    max-width: 900px;
-    margin: auto;
+.container {
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    color: #00ffcc;
+.trade-table {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 20px;
 }
 
-.panel {
+.trade-row {
+    background: #111;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #222;
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.inputs, .stats {
-    flex: 1;
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
+select {
+    background: #1c1c1c;
+    color: white;
+    border: 1px solid #333;
+    padding: 5px;
+    border-radius: 6px;
+}
+
+.panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: #111;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #222;
 }
 
 input {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    background: #111;
+    background: #1c1c1c;
     border: 1px solid #333;
     color: white;
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 button {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
+    border-radius: 8px;
     border: none;
-    border-radius: 10px;
     font-weight: bold;
-    margin-top: 5px;
     cursor: pointer;
+    margin-top: 5px;
 }
 
-.win { background: #00c853; }
-.loss { background: #d50000; }
+.green-btn { background: #0f8f3d; }
+.red-btn { background: #a80000; }
 
-.buttons {
-    margin-top: 15px;
+.green { color: #00ff6a; }
+.red { color: #ff3c3c; }
+
+.session-number {
+    font-size: 40px;
+    text-align: center;
+    margin: 10px 0;
 }
