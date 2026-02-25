@@ -1,95 +1,84 @@
-let capital = 0;
-let baseTrade = 0;
-let currentTrade = 0;
-let payout = 0;
-let wins = 0;
-let losses = 0;
-let step = 0;
+let sessionCounter = 0;
 
-let martingaleEnabled = false;
-let multiplier = 2;
-let maxSteps = 5;
+function generateTrades() {
+    let table = document.getElementById("tradeTable");
 
-function startSession() {
+    for (let i = 1; i <= 15; i++) {
+        let row = document.createElement("div");
+        row.className = "trade-row";
 
-    capital = parseFloat(initialCapital.value);
-    baseTrade = parseFloat(baseTrade.value);
-    payout = parseFloat(payout.value);
+        row.innerHTML = `
+            <span>Trade ${i}</span>
+            <select>
+                <option value="">-</option>
+                <option value="win">Win</option>
+                <option value="loss">Loss</option>
+            </select>
+        `;
 
-    martingaleEnabled = martingaleToggle.checked;
-    multiplier = parseFloat(martingaleMultiplier.value);
-    maxSteps = parseInt(maxSteps.value);
-
-    currentTrade = baseTrade;
-    wins = 0;
-    losses = 0;
-    step = 0;
-
-    updateUI();
-}
-
-function addWin() {
-
-    let profitAmount = currentTrade * (payout / 100);
-    capital += profitAmount;
-    wins++;
-
-    if (martingaleEnabled) {
-        currentTrade = baseTrade;
-        step = 0;
-    }
-
-    checkLimits();
-    updateUI();
-}
-
-function addLoss() {
-
-    capital -= currentTrade;
-    losses++;
-
-    if (martingaleEnabled) {
-        step++;
-        if (step < maxSteps) {
-            currentTrade *= multiplier;
-        } else {
-            currentTrade = baseTrade;
-            step = 0;
-        }
-    }
-
-    checkLimits();
-    updateUI();
-}
-
-function checkLimits() {
-
-    let profit = capital - parseFloat(initialCapital.value);
-    let stopLossAmount = parseFloat(initialCapital.value) *
-        (parseFloat(stopLossPercent.value) / 100);
-
-    if (profit >= parseFloat(profitTarget.value)) {
-        alert("🎯 Profit Target Reached");
-    }
-
-    if (capital <= parseFloat(initialCapital.value) - stopLossAmount) {
-        alert("🚨 Stop Loss Hit");
+        table.appendChild(row);
     }
 }
 
-function updateUI() {
+function calculateStats() {
+    let capital = parseFloat(initialCapital.value);
+    let wins = parseInt(winTrades.value);
+    let total = parseInt(totalTrades.value);
+    let payout = parseFloat(payout.value);
+    let stopLossPercent = parseFloat(stopLossPercent.value);
+    let profitTarget = parseFloat(profitTarget.value);
 
-    let totalTrades = wins + losses;
-    let winRate = totalTrades > 0 ? (wins / totalTrades) * 100 : 0;
+    let winRate = (wins / total) * 100;
+    winRateDisplay(winRate);
 
-    document.getElementById("capital").innerText = capital.toFixed(2);
-    document.getElementById("currentTrade").innerText = currentTrade.toFixed(2);
-    document.getElementById("profit").innerText =
-        (capital - parseFloat(initialCapital.value)).toFixed(2);
-    document.getElementById("wins").innerText = wins;
-    document.getElementById("losses").innerText = losses;
-    document.getElementById("winRate").innerText = winRate.toFixed(1) + "%";
+    let profitPerWin = capital * (payout / 100);
+    let totalProfit = (profitPerWin * wins) - (capital * (total - wins));
+    let growth = (totalProfit / capital) * 100;
+
+    document.getElementById("accountGrowth").innerText =
+        growth.toFixed(1) + "%";
+
+    let stopLossAmount = capital * (stopLossPercent / 100);
+    document.getElementById("stopLossAmount").innerText =
+        "$" + stopLossAmount.toFixed(2);
+
+    let sessionsNeeded = Math.ceil(profitTarget / totalProfit);
+    document.getElementById("sessionsRequired").innerText =
+        isFinite(sessionsNeeded) ? sessionsNeeded : 0;
 }
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
+
+function winRateDisplay(rate) {
+    let element = document.getElementById("winRate");
+    element.innerText = rate.toFixed(0) + "%";
+}
+
+function newSession() {
+    sessionCounter++;
+    document.getElementById("sessionCounter").innerText = sessionCounter;
+    localStorage.setItem("sessionCounter", sessionCounter);
+}
+
+function clearSessions() {
+    sessionCounter = 0;
+    localStorage.clear();
+    document.getElementById("sessionCounter").innerText = 0;
+}
+
+function resetAll() {
+    location.reload();
+}
+
+window.onload = function() {
+    generateTrades();
+
+    if(localStorage.getItem("sessionCounter")) {
+        sessionCounter = parseInt(localStorage.getItem("sessionCounter"));
+        document.getElementById("sessionCounter").innerText = sessionCounter;
+    }
+
+    document.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", calculateStats);
+    });
+
+    calculateStats();
 }
