@@ -3,60 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Money Manager Pro</title>
+<meta name="theme-color" content="#0c0c0c"/>
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+<title>Money Manager Pro</title>
 </head>
 <body>
 
-<div class="dashboard">
+<div class="container">
 
-    <h1>Money Manager Pro</h1>
+    <!-- TRADE TABLE -->
+    <div class="trade-table" id="tradeTable"></div>
 
-    <div class="panel">
+    <!-- PANELS -->
+    <div class="panels">
 
-        <div class="inputs">
+        <!-- CALCULATIONS -->
+        <div class="card">
+            <h3>Calculations</h3>
             <label>Initial Capital</label>
-            <input type="number" id="initialCapital" value="20">
+            <input id="initialCapital" type="number" value="20">
 
-            <label>Base Trade Amount</label>
-            <input type="number" id="baseTrade" value="2">
+            <label>Total Trades</label>
+            <input id="totalTrades" type="number" value="12">
+
+            <label>Win Trades</label>
+            <input id="winTrades" type="number" value="4">
 
             <label>Payout %</label>
-            <input type="number" id="payout" value="90">
+            <input id="payout" type="number" value="90">
 
-            <label>Profit Target ($)</label>
-            <input type="number" id="profitTarget" value="5">
+            <p>W/R: <span id="winRate" class="green">0%</span></p>
 
-            <label>Stop Loss %</label>
-            <input type="number" id="stopLossPercent" value="20">
-
-            <h3>Martingale Settings</h3>
-
-            <label>Enable Martingale</label>
-            <input type="checkbox" id="martingaleToggle">
-
-            <label>Multiplier</label>
-            <input type="number" id="martingaleMultiplier" value="2">
-
-            <label>Max Steps</label>
-            <input type="number" id="maxSteps" value="5">
-
-            <button onclick="startSession()">START SESSION</button>
+            <button class="red-btn" onclick="resetAll()">RESET</button>
         </div>
 
-        <div class="stats">
-            <h2>Session</h2>
-            <p>Capital: $<span id="capital">0</span></p>
-            <p>Current Trade: $<span id="currentTrade">0</span></p>
-            <p>Profit: $<span id="profit">0</span></p>
-            <p>Wins: <span id="wins">0</span></p>
-            <p>Losses: <span id="losses">0</span></p>
-            <p>Win Rate: <span id="winRate">0%</span></p>
+        <!-- SESSION COUNTER -->
+        <div class="card">
+            <h3>Session Counter</h3>
+            <div class="session-number" id="sessionCounter">0</div>
 
-            <div class="buttons">
-                <button class="win" onclick="addWin()">WIN</button>
-                <button class="loss" onclick="addLoss()">LOSS</button>
-            </div>
+            <button class="green-btn" onclick="newSession()">NEW SESSION</button>
+            <button class="red-btn" onclick="clearSessions()">CLEAR ALL SESSIONS</button>
+        </div>
+
+        <!-- DAILY GOALS -->
+        <div class="card">
+            <h3>Daily Goals</h3>
+
+            <label>Profit Target</label>
+            <input id="profitTarget" type="number" value="20">
+
+            <p>Sessions Required: <span id="sessionsRequired">0</span></p>
+            <p>Account Growth: <span id="accountGrowth" class="green">0%</span></p>
+        </div>
+
+        <!-- STOP LOSS -->
+        <div class="card">
+            <h3>Red Alerts</h3>
+
+            <label>High Stop Loss %</label>
+            <input id="stopLossPercent" type="number" value="20">
+
+            <p>Stop Loss: <span id="stopLossAmount" class="red">$0</span></p>
         </div>
 
     </div>
@@ -65,4 +74,4 @@
 
 <script src="script.js"></script>
 </body>
-                           </html>
+</html>
